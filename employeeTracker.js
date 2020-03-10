@@ -87,8 +87,13 @@ function addDepartment() {
         message: "Enter the new department name:",
     })
     .then(function(answer) {
-       sqlQueries.addDepartment(answer.department);
-       init();
+        if(answer.department == "") {
+            console.log("The department name cannot be empty.");
+            addDepartment();
+        } else {
+            sqlQueries.addDepartment(answer.department);
+            init();
+        }
     });
 }
 
@@ -113,10 +118,15 @@ function addRole() {
     }
     ])
     .then(function(answer) {
-        // regex /.+?(?=\,)/ picks up a part of a string before the first comma "," (comma not included)
-        const depID = answer.department.match(/.+?(?=\,)/);
-        sqlQueries.addRole(answer.role, answer.salary, depID);
-        init();
+        if(answer.role == "") {
+            console.log("The role name cannot be empty.");
+            addRole();
+        } else {
+            // regex /.+?(?=\,)/ picks up a part of a string before the first comma "," (comma not included)
+            const depID = answer.department.match(/.+?(?=\,)/);
+            sqlQueries.addRole(answer.role, answer.salary, depID);
+            init();
+        }
     });
 }
 
@@ -147,10 +157,15 @@ function addEmployee() {
     }
     ])
     .then(function(answer) {
-        const roleID = answer.role.match(/.+?(?=\,)/);
-        const managerID = answer.manager.match(/.+?(?=\,)/);
-        sqlQueries.addEmployee(answer.firstName, answer.lastName, roleID, managerID);
-        init();
+        if (answer.firstName == "" || answer.lastName == "") {
+            console.log("Both first and last names need to be entered.");
+            addEmployee();
+        } else {
+            const roleID = answer.role.match(/.+?(?=\,)/);
+            const managerID = answer.manager.match(/.+?(?=\,)/);
+            sqlQueries.addEmployee(answer.firstName, answer.lastName, roleID, managerID);
+            init();
+        }
     });
 }
 
@@ -205,20 +220,20 @@ function createDepList() {
 }
  
 function createRoleList() {
-    connection.query("SELECT * FROM role", function(err, res) {
+    connection.query('SELECT r.id "ID", r.title "Title", r.salary "Salary", d.name "Department" FROM role r LEFT JOIN department d ON r.department_id = d.id', function(err, res) {
         if (err) throw err;
         res.forEach(role => {
-            const eachRole = `${role.id}, ${role.title}, ${role.salary}`;
+            const eachRole = `${role.ID}, ${role.Title}, ${role.Salary}, ${role.Department}`;
             roleList.push(eachRole);
         });
     });
 }
 
 function createEmpList() {
-    connection.query("SELECT * FROM employee", function(err, res) {
+    connection.query('SELECT e.id "ID", CONCAT(e.first_name, " ", e.last_name) "Name", r.title "Role", d.name "Department" FROM employee e LEFT JOIN role r ON e.role_id = r.id LEFT JOIN department d ON r.department_id = d.id;', function(err, res) {
         if (err) throw err;
         res.forEach(employee => {
-            const eachEmp = `${employee.id}, ${employee.first_name}, ${employee.last_name}, ${employeeList.role_id}`;
+            const eachEmp = `${employee.ID}, ${employee.Name}, ${employee.Role}, ${employee.Department}`;
             employeeList.push(eachEmp);
         });
         employeeList.push("None");
