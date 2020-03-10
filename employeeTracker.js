@@ -48,7 +48,7 @@ function init() {
             "Exit"
         ]
     })
-    .then(async function(answer) {
+    .then(function(answer) {
         switch(answer.task) {
             case "Add Department":
                 addDepartment();
@@ -60,20 +60,21 @@ function init() {
                 addEmployee();
                 break;
             case "View All Departments":
-                sqlQueries.viewDepartments();
+                viewAllDepartments();
+                // sqlQueries.viewDepartments();
                 break;
             case "View All Roles":
-                sqlQueries.viewRoles();
+                viewAllRoles();
+                // sqlQueries.viewRoles();
                 break;
             case "View All Employees":
-                sqlQueries.viewEmployees();
+                viewAllEmployees();
+                // sqlQueries.viewEmployees();
                 break;
             case "Update Employee's Role":
                 break;
             case "Exit":
                 connection.end();
-                break;
-            default:
                 break;
         }
     });
@@ -87,24 +88,39 @@ function addDepartment() {
         message: "Enter the new department name:",
     })
     .then(function(answer) {
-        console.log(answer);
+       sqlQueries.addDepartment(answer.department);
+       init();
     });
 }
 
 function addRole() {
     inquirer
-    .prompt({
+    .prompt([
+    {
         type: "input",
         name: "role",
         message: "Enter the new role name:"
-    })
+    },
+    {
+        type: "input",
+        name: "salary",
+        message: "Enter salary of the new role:"
+    },
+    {
+        type: "list",
+        name: "department",
+        message: "Choose a role for the new employee:",
+        choices: departmentList
+    }
+    ])
     .then(function(answer) {
-        console.log(answer);
+        const depID = answer.department.match(/.+?(?=\,)/);
+        sqlQueries.addRole(answer.role, answer.salary, depID);
+        init();
     });
 }
 
 function addEmployee() {
-    console.log("rolelist:", roleList);
     inquirer
     .prompt([     
     {
@@ -124,15 +140,33 @@ function addEmployee() {
         choices: roleList
     },
     {
-        type: "input",
+        type: "list",
         name: "manager",
-        message: "Enter the employee's manager's ID:"
-        // make list of managers to choose?
+        message: "Choose a manager of the new employee:",
+        choices: employeeList
     }
     ])
     .then(function(answer) {
-        console.log(answer);
+        const roleID = answer.role.match(/.+?(?=\,)/);
+        const managerID = answer.manager.match(/.+?(?=\,)/);
+        sqlQueries.addEmployee(answer.firstName, answer.lastName, roleID, managerID);
+        init();
     });
+}
+
+function viewAllDepartments() {
+    sqlQueries.viewDepartments();
+    init();
+}
+
+function viewAllRoles() {
+    sqlQueries.viewRoles();
+    init();
+}
+
+function viewAllEmployees() {
+    sqlQueries.viewEmployees();
+    init();
 }
 
 function createDepList() {
@@ -162,5 +196,6 @@ function createEmpList() {
             const eachEmp = `${employee.id}, ${employee.first_name}, ${employee.last_name}, ${employeeList.role_id}`;
             employeeList.push(eachEmp);
         });
+        employeeList.push("None");
     });
 }
