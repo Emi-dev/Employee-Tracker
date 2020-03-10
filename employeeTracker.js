@@ -14,22 +14,17 @@ const connection = mysql.createConnection({
     password: " ",
     database: "employee_db"
 });
-  
+
 // connect to the mysql server and sql database
 connection.connect(function(err) {
     if (err) throw err;
-    init(); // run the init function after the connection is made
-});
-
-// work: change to call this function where init() is called
-function init() {
     createDepList();    // create the list (array) of departments
     createRoleList();   // create the list (array) of roles
     createEmpList();    // create the list (array) of employees
-    start(); // run the init function after the connection is made
-}
+    init(); // run the init function after the connection is made
+});
 
-function start() {
+function init() {
     inquirer
     .prompt({
         type: "list",
@@ -89,6 +84,7 @@ function addDepartment() {
             addDepartment();
         } else {
             sqlQueries.addDepartment(answer.department);
+            createDepList();
             init();
         }
     });
@@ -122,8 +118,9 @@ function addRole() {
             // regex /.+?(?=\,)/ picks up a part of a string before the first comma "," (comma not included)
             const depID = answer.department.match(/.+?(?=\,)/);
             sqlQueries.addRole(answer.role, answer.salary, depID);
-            init();
+            createRoleList();
             console.log("new role list:", roleList);
+            init();
         }
     });
 }
@@ -162,6 +159,7 @@ function addEmployee() {
             const roleID = answer.role.match(/.+?(?=\,)/);
             const managerID = answer.manager.match(/.+?(?=\,)/);
             sqlQueries.addEmployee(answer.firstName, answer.lastName, roleID, managerID);
+            createEmpList();
             init();
         }
     });
@@ -169,17 +167,17 @@ function addEmployee() {
 
 function viewAllDepartments() {
     sqlQueries.viewDepartments();
-    start();
+    init();
 }
 
 function viewAllRoles() {
     sqlQueries.viewRoles();
-    start();
+    init();
 }
 
 function viewAllEmployees() {
     sqlQueries.viewEmployees();
-    start();
+    init();
 }
 
 function updateEmployeeRole() {
@@ -202,6 +200,7 @@ function updateEmployeeRole() {
         const empID = answer.employee.match(/.+?(?=\,)/);
         const roleID = answer.role.match(/.+?(?=\,)/);
         sqlQueries.updateEmployeeRole(empID, roleID);
+        createEmpList();
         init();
     });
 }
