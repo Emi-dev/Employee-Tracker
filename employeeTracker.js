@@ -21,7 +21,7 @@ connection.connect(function(err) {
     createDepList();    // create the list (array) of departments
     createRoleList();   // create the list (array) of roles
     createEmpList();    // create the list (array) of employees
-    init(); // run the init function after the connection is made
+    init();             // run the init function after the connection is made
 });
 
 function init() {
@@ -84,13 +84,14 @@ function addDepartment() {
             addDepartment();
         } else {
             sqlQueries.addDepartment(answer.department);
-            createDepList();
+            
             init();
         }
     });
 }
 
 function addRole() {
+    createDepList();    // Update the departmentList
     inquirer
     .prompt([
     {
@@ -106,7 +107,7 @@ function addRole() {
     {
         type: "list",
         name: "department",
-        message: "Choose a role for the new employee:",
+        message: "Choose a department for the new role:",
         choices: departmentList
     }
     ])
@@ -118,14 +119,14 @@ function addRole() {
             // regex /.+?(?=\,)/ picks up a part of a string before the first comma "," (comma not included)
             const depID = answer.department.match(/.+?(?=\,)/);
             sqlQueries.addRole(answer.role, answer.salary, depID);
-            createRoleList();
-            console.log("new role list:", roleList);
             init();
         }
     });
 }
 
 function addEmployee() {
+    createRoleList();   // Update the roleList
+    createEmpList();    // Update the employeeList
     inquirer
     .prompt([     
     {
@@ -159,7 +160,6 @@ function addEmployee() {
             const roleID = answer.role.match(/.+?(?=\,)/);
             const managerID = answer.manager.match(/.+?(?=\,)/);
             sqlQueries.addEmployee(answer.firstName, answer.lastName, roleID, managerID);
-            createEmpList();
             init();
         }
     });
