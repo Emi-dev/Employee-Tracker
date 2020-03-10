@@ -40,11 +40,6 @@ function init() {
             "View All Roles",
             "View All Employees",
             "Update Employee's Role",
-            // "Update Employee's Manager",
-            // "View Employees by Manager",
-            // "Delete Department",
-            // "Delete Role",
-            // "Delete Employee"
             "Exit"
         ]
     })
@@ -61,17 +56,15 @@ function init() {
                 break;
             case "View All Departments":
                 viewAllDepartments();
-                // sqlQueries.viewDepartments();
                 break;
             case "View All Roles":
                 viewAllRoles();
-                // sqlQueries.viewRoles();
                 break;
             case "View All Employees":
                 viewAllEmployees();
-                // sqlQueries.viewEmployees();
                 break;
             case "Update Employee's Role":
+                updateEmployeeRole();
                 break;
             case "Exit":
                 connection.end();
@@ -167,6 +160,31 @@ function viewAllRoles() {
 function viewAllEmployees() {
     sqlQueries.viewEmployees();
     init();
+}
+
+// work from here...
+function updateEmployeeRole() {
+    inquirer
+    .prompt([     
+    {
+        type: "list",
+        name: "employee",
+        message: "Choose a employee to update the role:",
+        choices: employeeList
+    },
+    {
+        type: "list",
+        name: "role",
+        message: "Choose a new role for the employee:",
+        choices: roleList
+    }
+    ])
+    .then(function(answer) {
+        const empID = answer.employee.match(/.+?(?=\,)/);
+        const roleID = answer.role.match(/.+?(?=\,)/);
+        sqlQueries.updateEmployeeRole(); // work from here...
+        init();
+    });
 }
 
 function createDepList() {
