@@ -18,21 +18,18 @@ const connection = mysql.createConnection({
 // connect to the mysql server and sql database
 connection.connect(function(err) {
     if (err) throw err;
-    createDepList();    // create the list (array) of departments
-    createRoleList();   // create the list (array) of roles
-    createEmpList();    // create the list (array) of employees
     init(); // run the init function after the connection is made
 });
 
 // work: change to call this function where init() is called
-function start() {
+function init() {
     createDepList();    // create the list (array) of departments
     createRoleList();   // create the list (array) of roles
     createEmpList();    // create the list (array) of employees
-    init(); // run the init function after the connection is made
+    start(); // run the init function after the connection is made
 }
 
-function init() {
+function start() {
     inquirer
     .prompt({
         type: "list",
@@ -126,6 +123,7 @@ function addRole() {
             const depID = answer.department.match(/.+?(?=\,)/);
             sqlQueries.addRole(answer.role, answer.salary, depID);
             init();
+            console.log("new role list:", roleList);
         }
     });
 }
@@ -171,17 +169,17 @@ function addEmployee() {
 
 function viewAllDepartments() {
     sqlQueries.viewDepartments();
-    init();
+    start();
 }
 
 function viewAllRoles() {
     sqlQueries.viewRoles();
-    init();
+    start();
 }
 
 function viewAllEmployees() {
     sqlQueries.viewEmployees();
-    init();
+    start();
 }
 
 function updateEmployeeRole() {
@@ -210,6 +208,7 @@ function updateEmployeeRole() {
 
 // functions to create the lists (array) of departments, roles, and employees for the "choices" of inquirer prompt
 function createDepList() {
+    departmentList = [];
     connection.query("SELECT * FROM department", function(err, res) {
         if (err) throw err;
         res.forEach(department => {
@@ -220,6 +219,7 @@ function createDepList() {
 }
  
 function createRoleList() {
+    roleList = [];
     connection.query('SELECT r.id "ID", r.title "Title", r.salary "Salary", d.name "Department" FROM role r LEFT JOIN department d ON r.department_id = d.id', function(err, res) {
         if (err) throw err;
         res.forEach(role => {
@@ -230,6 +230,7 @@ function createRoleList() {
 }
 
 function createEmpList() {
+    employeeList = [];
     connection.query('SELECT e.id "ID", CONCAT(e.first_name, " ", e.last_name) "Name", r.title "Role", d.name "Department" FROM employee e LEFT JOIN role r ON e.role_id = r.id LEFT JOIN department d ON r.department_id = d.id;', function(err, res) {
         if (err) throw err;
         res.forEach(employee => {
