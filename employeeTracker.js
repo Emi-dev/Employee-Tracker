@@ -1,6 +1,5 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
-const cTable = require("console.table");
 const sqlQueries = require("./lib/sqlQueries");
 
 let departmentList = [];
@@ -19,12 +18,19 @@ const connection = mysql.createConnection({
 // connect to the mysql server and sql database
 connection.connect(function(err) {
     if (err) throw err;
-    createDepList();
-    createRoleList();
-    createEmpList();
-    // run the init function after the connection is made
-    init();
+    createDepList();    // create the list (array) of departments
+    createRoleList();   // create the list (array) of roles
+    createEmpList();    // create the list (array) of employees
+    init(); // run the init function after the connection is made
 });
+
+// work: change to call this function where init() is called
+function start() {
+    createDepList();    // create the list (array) of departments
+    createRoleList();   // create the list (array) of roles
+    createEmpList();    // create the list (array) of employees
+    init(); // run the init function after the connection is made
+}
 
 function init() {
     inquirer
@@ -107,6 +113,7 @@ function addRole() {
     }
     ])
     .then(function(answer) {
+        // regex /.+?(?=\,)/ picks up a part of a string before the first comma "," (comma not included)
         const depID = answer.department.match(/.+?(?=\,)/);
         sqlQueries.addRole(answer.role, answer.salary, depID);
         init();
@@ -162,7 +169,6 @@ function viewAllEmployees() {
     init();
 }
 
-// work from here...
 function updateEmployeeRole() {
     inquirer
     .prompt([     
@@ -182,11 +188,12 @@ function updateEmployeeRole() {
     .then(function(answer) {
         const empID = answer.employee.match(/.+?(?=\,)/);
         const roleID = answer.role.match(/.+?(?=\,)/);
-        sqlQueries.updateEmployeeRole(); // work from here...
+        sqlQueries.updateEmployeeRole(empID, roleID);
         init();
     });
 }
 
+// functions to create the lists (array) of departments, roles, and employees for the "choices" of inquirer prompt
 function createDepList() {
     connection.query("SELECT * FROM department", function(err, res) {
         if (err) throw err;
