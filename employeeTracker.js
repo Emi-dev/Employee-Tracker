@@ -182,7 +182,7 @@ function viewAllEmployees() {
 }
 
 function updateEmployeeRole() {
-    // createEmpList();    // Update the employeeList
+    createEmpList();    // Update the employeeList
     createRoleList();   // update the roleList
     console.log("start updating employee role");
     inquirer
