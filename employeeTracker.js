@@ -85,7 +85,7 @@ function addDepartment() {
             addDepartment();
         } else {
             sqlQueries.addDepartment(answer.department);
-            init();
+            confirmMoreTask();
         }
     });
 }
@@ -119,7 +119,7 @@ function addRole() {
             // regex /.+?(?=\,)/ picks up a part of a string before the first comma "," (comma not included)
             const depID = answer.department.match(/.+?(?=\,)/);
             sqlQueries.addRole(answer.role, answer.salary, depID);
-            init();
+            confirmMoreTask();
         }
     });
 }
@@ -160,29 +160,29 @@ function addEmployee() {
             const roleID = answer.role.match(/.+?(?=\,)/);
             const managerID = answer.manager.match(/.+?(?=\,)/);
             sqlQueries.addEmployee(answer.firstName, answer.lastName, roleID, managerID);
-            init();
+            confirmMoreTask();
         }
     });
 }
 
 function viewAllDepartments() {
     sqlQueries.viewDepartments();
-    init();
+    confirmMoreTask();
 }
 
 function viewAllRoles() {
     sqlQueries.viewRoles();
-    init();
+    confirmMoreTask();
 }
 
 function viewAllEmployees() {
     sqlQueries.viewEmployees();
-    init();
+    confirmMoreTask();
 }
 
 function updateEmployeeRole() {
     createRoleList();   // update the roleList
-    createEmpList();    // Update the employeeList
+    // createEmpList();    // Update the employeeList
     inquirer
     .prompt([     
     {
@@ -202,8 +202,26 @@ function updateEmployeeRole() {
         const empID = answer.employee.match(/.+?(?=\,)/);
         const roleID = answer.role.match(/.+?(?=\,)/);
         sqlQueries.updateEmployeeRole(empID, roleID);
-        init();
+        confirmMoreTask();
     });
+}
+
+// function to ask the user if he/she has more to do with the app during the session
+function confirmMoreTask() {
+    inquirer
+    .prompt({
+        type: "confirm",
+        name: "task",
+        message: "Would you like to continue managing employees' data?"
+    })
+    .then(function(answer) {
+        if(answer.task) {
+            init();
+        } else {    // if no more task, end mysql connections
+            connection.end();
+            sqlQueries.endConnection();
+        }
+    });   
 }
 
 // functions to create the lists (array) of departments, roles, and employees for the "choices" of inquirer prompt
