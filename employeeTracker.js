@@ -127,6 +127,7 @@ function addRole() {
 function addEmployee() {
     createEmpList();    // Update the employeeList
     createRoleList();   // Update the roleList
+    console.log("start adding employee");
     inquirer
     .prompt([     
     {
@@ -181,8 +182,9 @@ function viewAllEmployees() {
 }
 
 function updateEmployeeRole() {
-    createRoleList();   // update the roleList
     // createEmpList();    // Update the employeeList
+    createRoleList();   // update the roleList
+    console.log("start updating employee role");
     inquirer
     .prompt([     
     {
@@ -256,5 +258,7 @@ function createEmpList() {
             employeeList.push(eachEmp);
         });
         employeeList.push("None");
+        console.log("new emp list pushed!");
     });
+    console.log("end of createEmpList");
 }
