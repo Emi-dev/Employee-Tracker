@@ -15,7 +15,7 @@ VALUES  ("Development Manager", 150000, 1),
         ("Sales Manager", 120000, 2),
         ("Sales Associate I", 35000, 2),
         ("Sales Associate II", 45000, 2),
-        ("Sales Associate II", 55000, 2),
+        ("Sales Associate III", 55000, 2),
         ("Sales Intern", 25000, 2),
         ("HR Manager", 100000, 3),
         ("HR Assistant", 45000, 3)

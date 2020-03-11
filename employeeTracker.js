@@ -65,7 +65,8 @@ function init() {
                 updateEmployeeRole();
                 break;
             case "Exit":
-                connection.end();
+                connection.end();           // end connection on employeeTracker.js
+                sqlQueries.endConnection(); // end connection on sqlQueries.js
                 break;
         }
     });
@@ -84,7 +85,6 @@ function addDepartment() {
             addDepartment();
         } else {
             sqlQueries.addDepartment(answer.department);
-            
             init();
         }
     });
@@ -125,8 +125,8 @@ function addRole() {
 }
 
 function addEmployee() {
-    createRoleList();   // Update the roleList
     createEmpList();    // Update the employeeList
+    createRoleList();   // Update the roleList
     inquirer
     .prompt([     
     {
@@ -181,12 +181,14 @@ function viewAllEmployees() {
 }
 
 function updateEmployeeRole() {
+    createRoleList();   // update the roleList
+    createEmpList();    // Update the employeeList
     inquirer
     .prompt([     
     {
         type: "list",
         name: "employee",
-        message: "Choose a employee to update the role:",
+        message: "Choose an employee to update the role:",
         choices: employeeList
     },
     {
@@ -200,7 +202,6 @@ function updateEmployeeRole() {
         const empID = answer.employee.match(/.+?(?=\,)/);
         const roleID = answer.role.match(/.+?(?=\,)/);
         sqlQueries.updateEmployeeRole(empID, roleID);
-        createEmpList();
         init();
     });
 }
