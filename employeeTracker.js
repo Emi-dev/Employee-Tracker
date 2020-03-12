@@ -75,17 +75,29 @@ function init() {
 function addDepartment() {
     inquirer
     .prompt({
-        type: "input",
-        name: "department",
-        message: "Enter the new department name:",
-    })
+        type: "confirm",
+        name: "task",
+        message: "You are about to add a department. Would you like to continue?"
+    })    
     .then(function(answer) {
-        if(answer.department == "") {
-            console.log("The department name cannot be empty.");
-            addDepartment();
+        if(answer.task) {
+            inquirer
+            .prompt({
+                type: "input",
+                name: "department",
+                message: "Enter the new department name:",
+            })
+            .then(function(answer) {
+                if(answer.department == "") {
+                    console.log("The department name cannot be empty.");
+                    addDepartment();
+                } else {
+                    sqlQueries.addDepartment(answer.department);
+                    confirmMoreTask();
+                }
+            });
         } else {
-            sqlQueries.addDepartment(answer.department);
-            confirmMoreTask();
+            init();
         }
     });
 }
@@ -93,33 +105,45 @@ function addDepartment() {
 function addRole() {
     createDepList();    // Update the departmentList
     inquirer
-    .prompt([
-    {
-        type: "input",
-        name: "role",
-        message: "Enter the new role name:"
-    },
-    {
-        type: "input",
-        name: "salary",
-        message: "Enter salary of the new role:"
-    },
-    {
-        type: "list",
-        name: "department",
-        message: "Choose a department for the new role:",
-        choices: departmentList
-    }
-    ])
+    .prompt({
+        type: "confirm",
+        name: "task",
+        message: "You are about a role. Would you like to continue?"
+    })    
     .then(function(answer) {
-        if(answer.role == "") {
-            console.log("The role name cannot be empty.");
-            addRole();
+        if(answer.task) {
+            inquirer
+            .prompt([
+            {
+                type: "input",
+                name: "role",
+                message: "Enter the new role name:"
+            },
+            {
+                type: "input",
+                name: "salary",
+                message: "Enter salary of the new role:"
+            },
+            {
+                type: "list",
+                name: "department",
+                message: "Choose a department for the new role:",
+                choices: departmentList
+            }
+            ])
+            .then(function(answer) {
+                if(answer.role == "") {
+                    console.log("The role name cannot be empty.");
+                    addRole();
+                } else {
+                    // regex /.+?(?=\,)/ picks up a part of a string before the first comma "," (comma not included)
+                    const depID = answer.department.match(/.+?(?=\,)/);
+                    sqlQueries.addRole(answer.role, answer.salary, depID);
+                    confirmMoreTask();
+                }
+            });
         } else {
-            // regex /.+?(?=\,)/ picks up a part of a string before the first comma "," (comma not included)
-            const depID = answer.department.match(/.+?(?=\,)/);
-            sqlQueries.addRole(answer.role, answer.salary, depID);
-            confirmMoreTask();
+            init();
         }
     });
 }
@@ -127,41 +151,52 @@ function addRole() {
 function addEmployee() {
     createEmpList();    // Update the employeeList
     createRoleList();   // Update the roleList
-    console.log("start adding employee");
     inquirer
-    .prompt([     
-    {
-        type: "input",
-        name: "firstName",
-        message: "Enter the new employee's first name:"
-    },
-    {
-        type: "input",
-        name: "lastName",
-        message: "Enter the new employee's last name:"
-    },
-    {
-        type: "list",
-        name: "role",
-        message: "Choose a role for the new employee:",
-        choices: roleList
-    },
-    {
-        type: "list",
-        name: "manager",
-        message: "Choose a manager of the new employee:",
-        choices: employeeList
-    }
-    ])
+    .prompt({
+        type: "confirm",
+        name: "task",
+        message: "You are about to add an employee. Would you like to continue?"
+    })
     .then(function(answer) {
-        if (answer.firstName == "" || answer.lastName == "") {
-            console.log("Both first and last names need to be entered.");
-            addEmployee();
+        if(answer.task) {
+            inquirer
+            .prompt([     
+            {
+                type: "input",
+                name: "firstName",
+                message: "Enter the new employee's first name:"
+            },
+            {
+                type: "input",
+                name: "lastName",
+                message: "Enter the new employee's last name:"
+            },
+            {
+                type: "list",
+                name: "role",
+                message: "Choose a role for the new employee:",
+                choices: roleList
+            },
+            {
+                type: "list",
+                name: "manager",
+                message: "Choose a manager of the new employee:",
+                choices: employeeList
+            }
+            ])
+            .then(function(answer) {
+                if (answer.firstName == "" || answer.lastName == "") {
+                    console.log("Both first and last names need to be entered.");
+                    addEmployee();
+                } else {
+                    const roleID = answer.role.match(/.+?(?=\,)/);
+                    const managerID = answer.manager.match(/.+?(?=\,)/);
+                    sqlQueries.addEmployee(answer.firstName, answer.lastName, roleID, managerID);
+                    confirmMoreTask();
+                }
+            });
         } else {
-            const roleID = answer.role.match(/.+?(?=\,)/);
-            const managerID = answer.manager.match(/.+?(?=\,)/);
-            sqlQueries.addEmployee(answer.firstName, answer.lastName, roleID, managerID);
-            confirmMoreTask();
+            init();
         }
     });
 }
@@ -184,28 +219,39 @@ function viewAllEmployees() {
 function updateEmployeeRole() {
     createEmpList();    // Update the employeeList
     createRoleList();   // update the roleList
-    console.log("start updating employee role");
     inquirer
-    .prompt([     
-    {
-        type: "list",
-        name: "employee",
-        message: "Choose an employee to update the role:",
-        choices: employeeList
-    },
-    {
-        type: "list",
-        name: "role",
-        message: "Choose a new role for the employee:",
-        choices: roleList
-    }
-    ])
+    .prompt({
+        type: "confirm",
+        name: "task",
+        message: "You are about to change an employee's role. Would you like to continue?"
+    })
     .then(function(answer) {
-        const empID = answer.employee.match(/.+?(?=\,)/);
-        const roleID = answer.role.match(/.+?(?=\,)/);
-        sqlQueries.updateEmployeeRole(empID, roleID);
-        confirmMoreTask();
-    });
+        if(answer.task) {
+            inquirer
+            .prompt([     
+            {
+                type: "list",
+                name: "employee",
+                message: "Choose an employee to update the role:",
+                choices: employeeList
+            },
+            {
+                type: "list",
+                name: "role",
+                message: "Choose a new role for the employee:",
+                choices: roleList
+            }
+            ])
+            .then(function(answer) {
+                const empID = answer.employee.match(/.+?(?=\,)/);
+                const roleID = answer.role.match(/.+?(?=\,)/);
+                sqlQueries.updateEmployeeRole(empID, roleID);
+                confirmMoreTask();
+            });
+        } else {
+            init();
+        }
+    });   
 }
 
 // function to ask the user if he/she has more to do with the app during the session
@@ -258,7 +304,5 @@ function createEmpList() {
             employeeList.push(eachEmp);
         });
         employeeList.push("None");
-        console.log("new emp list pushed!");
     });
-    console.log("end of createEmpList");
 }
