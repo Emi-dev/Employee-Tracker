@@ -19,7 +19,8 @@ The user can do the followings:
 
 ### How To Run The Employee Tracker
 Install the packages (dependencies) by running the command belowo in the terminal:</br>
->`npm i` </br>
+>`npm i` 
+
 Ant then run the command below in the terminal:
 >`node employeeTracker.js`
 
