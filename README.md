@@ -18,9 +18,9 @@ The user can do the followings:
 ![View Roles](images/EmployeeTracker_view.png)
 
 ### How To Run The Employee Tracker
-Install the packages (dependencies) by running the command belowo in the terminal:
->`npm i`
-Ant then run the command below in the terminal:
+Install the packages (dependencies) by running the command belowo in the terminal:</br>
+>`npm i` </br>
+Ant then run the command below in the terminal:</br>
 >`node employeeTracker.js`
 
 ### Files
